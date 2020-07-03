@@ -10,43 +10,56 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.nasen.railwaywatcher.Global
-import com.nasen.railwaywatcher.Quadruple
+import com.nasen.railwaywatcher.Quintuple
 import com.nasen.railwaywatcher.R
 import com.nasen.railwaywatcher.daysBetween
 import com.nasen.railwaywatcher.type.Railway
-import kotlinx.android.synthetic.main.fragment_subrange_list.*
+import kotlinx.android.synthetic.main.fragment_railway_reminder.*
 import java.util.*
 
 class RailwayDetailReminderFragment(idx: Int) : Fragment() {
     val railway = Global.get(idx)
     lateinit var reminderAdapter: RailwayDetailReminderAdapter
+    var full = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_subrange_list, container, false)
+    ): View? = inflater.inflate(R.layout.fragment_railway_reminder, container, false)
 
     fun updateAll() {
-        reminderAdapter.ranges = railway.getUncheckedOrLate()
+        reminderAdapter.ranges = if (full) {
+            railway.getAll()
+        } else {
+            railway.getUncheckedOrLate()
+        }
         reminderAdapter.notifyDataSetChanged()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val manager = LinearLayoutManager(requireContext())
+        val manager = object : LinearLayoutManager(requireContext()) {
+            override fun supportsPredictiveItemAnimations(): Boolean = true
+        }
         reminderAdapter = RailwayDetailReminderAdapter(railway)
+        reminderAdapter.setHasStableIds(true)
         subRangeView.apply {
             setHasFixedSize(true)
             layoutManager = manager
             adapter = reminderAdapter
+        }
+        swipeRefresh.setOnRefreshListener {
+            full = !full
+            updateAll()
+            swipeRefresh.isRefreshing = false
         }
     }
 }
 
 class RailwayDetailReminderAdapter(railway: Railway) :
     RecyclerView.Adapter<RailwayDetailReminderAdapter.ViewHolder>() {
-    var ranges: List<Quadruple<Int, Int, Int, Date?>> = railway.getUncheckedOrLate()
+    var ranges: List<Quintuple<Int, Int, Int, Date?, Boolean?>> = railway.getUncheckedOrLate()
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val context: Context = itemView.context
@@ -54,6 +67,7 @@ class RailwayDetailReminderAdapter(railway: Railway) :
         val endPos: TextView = itemView.findViewById(R.id.endPosText)
         val leftText: TextView = itemView.findViewById(R.id.detailLeftText)
         val rightText: TextView = itemView.findViewById(R.id.detailRightText)
+        val singleText: TextView = itemView.findViewById(R.id.singleOrDouble)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(
@@ -61,6 +75,8 @@ class RailwayDetailReminderAdapter(railway: Railway) :
     )
 
     override fun getItemCount(): Int = ranges.size
+
+    override fun getItemId(position: Int): Long = ranges[position].hashCode().toLong()
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val range = ranges[position]
@@ -86,6 +102,13 @@ class RailwayDetailReminderAdapter(railway: Railway) :
                 } else {
                     context.getString(R.string.remaining_days_format, -between)
                 }
+            }
+            singleText.text = if (range.t5 == null) {
+                context.getString(R.string.single)
+            } else if (range.t5) {
+                context.getString(R.string.upstream)
+            } else {
+                context.getString(R.string.downstream)
             }
         }
     }

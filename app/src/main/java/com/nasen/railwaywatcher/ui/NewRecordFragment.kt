@@ -26,6 +26,7 @@ class NewRecordFragment : Fragment(), DatePickerFragment.Listener {
     lateinit var railway: Railway
     lateinit var recordForm: Form
     lateinit var sdf: DateFormat
+    private var up: Boolean? = null
     private var date: Calendar? = Calendar.getInstance()
         set(value) {
             field = value
@@ -68,9 +69,9 @@ class NewRecordFragment : Fragment(), DatePickerFragment.Listener {
                         )
                     } else {
                         if (date == null) {
-                            Global.removeRecord(args.which, start, end)
+                            Global.removeRecord(args.which, start, end, up)
                         } else {
-                            Global.addRecord(args.which, start, end, date!!.time)
+                            Global.addRecord(args.which, start, end, date!!.time, up)
                         }
                         findNavController().navigateUp()
                     }
@@ -120,6 +121,15 @@ class NewRecordFragment : Fragment(), DatePickerFragment.Listener {
         }
         setNoRecord.setOnClickListener {
             date = null
+        }
+        radioGroup2.setOnCheckedChangeListener { group, checkedId ->
+            when (checkedId) {
+                R.id.both -> up = null
+                R.id.upstream -> up = true
+                R.id.downstream -> up = false
+                else -> {
+                }
+            }
         }
     }
 

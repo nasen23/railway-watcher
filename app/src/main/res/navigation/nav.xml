@@ -59,16 +59,12 @@
             android:name="endPos"
             app:argType="integer" />
         <argument
-            android:name="startPlace"
-            app:argType="string" />
-        <argument
-            android:name="endPlace"
+            android:name="name"
             app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/railwayDetailFragment"
         android:name="com.nasen.railwaywatcher.ui.RailwayDetailFragment"
-        android:label="fragment_railway_detail"
         tools:layout="@layout/fragment_railway_detail">
         <argument
             android:name="which"

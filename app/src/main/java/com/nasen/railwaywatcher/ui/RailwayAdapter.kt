@@ -33,7 +33,7 @@ class RailwayAdapter : RecyclerView.Adapter<RailwayAdapter.ViewHolder>() {
         val railway = railways[position]
         holder.apply {
             seqNumView.text = (position + 1).toString()
-            titleView.text = context.getString(R.string.railway_title, railway.from, railway.to)
+            titleView.text = railway.name
             descriptionView.text =
                 context.getString(R.string.railway_description, railway.ranges.size)
             itemView.setOnClickListener {

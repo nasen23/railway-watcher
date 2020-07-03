@@ -18,6 +18,7 @@ import com.nasen.railwaywatcher.Global
 import com.nasen.railwaywatcher.R
 import com.nasen.railwaywatcher.type.Railway
 import com.nasen.railwaywatcher.type.Range
+import com.nasen.railwaywatcher.type.SingleRange
 import kotlinx.android.synthetic.main.fragment_subrange_list.*
 
 class RailwayDetailSubRangeFragment(val parent: Fragment, val idx: Int) : Fragment(),
@@ -61,6 +62,7 @@ class SubRangesAdapter(val fragment: Fragment, var subRanges: List<Range>) :
         val endPos: TextView = itemView.findViewById(R.id.endPosText)
         val leftText: TextView = itemView.findViewById(R.id.detailLeftText)
         val rightText: TextView = itemView.findViewById(R.id.detailRightText)
+        val singleText: TextView = itemView.findViewById(R.id.singleOrDouble)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(
@@ -85,6 +87,10 @@ class SubRangesAdapter(val fragment: Fragment, var subRanges: List<Range>) :
             leftText.text = context.getString(R.string.day_format, subRange.checkDay)
             rightText.text =
                 context.getString(R.string.remind_count_format, subRange.getUncheckedOrLateCount())
+            singleText.text = when (subRange) {
+                is SingleRange -> context.getString(R.string.single)
+                else -> context.getString(R.string.doubled)
+            }
             itemView.setOnClickListener {
                 val dialog = SetCheckDayDialogFragment(layoutPosition)
                 dialog.setTargetFragment(fragment, 0)

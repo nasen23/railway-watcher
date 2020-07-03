@@ -6,6 +6,13 @@
     <string name="none">无</string>
     <string name="unit_kilometer">km</string>
     <string name="unit_meter">m</string>
+    <string name="single">单</string>
+    <string name="doubled">双</string>
+    <string name="both">全部</string>
+    <string name="upstream">上行</string>
+    <string name="downstream">下行</string>
+    <string name="stream">上下行</string>
+    <string name="name">名称</string>
     <string name="start_place">起始站</string>
     <string name="end_place">终点站</string>
     <string name="start_pos">起始</string>
@@ -33,7 +40,7 @@
     <string name="last_checked_at_format">检查于%1$d月%2$d日</string>
     <string name="never_checked">从未检查过</string>
     <string name="past_days_format">已超时%1$d天</string>
-    <string name="remaining_days_format">仅差%1$d天</string>
+    <string name="remaining_days_format">还有%1$d天</string>
     <string name="start_pos_bigger_than_end_pos">起点应小于终点</string>
     <string name="record_not_inside_range">起始到终点应都在同一段中</string>
     <string name="range_format">%dkm%dm - %dkm%dm</string>

@@ -1,37 +1,28 @@
 package com.nasen.railwaywatcher.type
 
-import android.os.Parcel
-import android.os.Parcelable
-import com.nasen.railwaywatcher.Quadruple
+import com.nasen.railwaywatcher.Quintuple
 import com.nasen.railwaywatcher.daysBetween
-import java.io.Serializable
 import java.util.*
 
 /*
     This is a implementation of non-overlapping range
  */
-class Range(var start: Int, var end: Int, var checkDay: Int) : Serializable, Parcelable {
+abstract class Range(var start: Int, var end: Int, var checkDay: Int) {
+    abstract fun insertRecord(s: Int, e: Int, date: Date?, up: Boolean?)
+    abstract fun removeRecord(s: Int, e: Int, up: Boolean?)
+    abstract fun getAll(): List<Quintuple<Int, Int, Int, Date?, Boolean?>>
+    abstract fun getUncheckedOrLate(): List<Quintuple<Int, Int, Int, Date?, Boolean?>>
+    abstract fun getUncheckedOrLateCount(): Int
+}
+
+class SingleRange(start: Int, end: Int, checkDay: Int) : Range(start, end, checkDay) {
     val inner: TreeMap<Int, Pair<Int, Date?>> = TreeMap()
 
     init {
         inner[end] = Pair(start, null)
     }
 
-    constructor(parcel: Parcel) : this(
-        parcel.readInt(),
-        parcel.readInt(),
-        parcel.readInt()
-    ) {
-        val size = parcel.readInt()
-        for (i in 1..size) {
-            val key = parcel.readInt()
-            val second = parcel.readInt()
-            val third = parcel.readString()?.toLong()?.let { Date(it) }
-            inner[key] = Pair(second, third)
-        }
-    }
-
-    fun insert(s: Int, e: Int, date: Date?) {
+    override fun insertRecord(s: Int, e: Int, date: Date?, up: Boolean?) {
         // s >= start && e <= end ensured
         // range insertion algorithm
         var ss = s
@@ -71,43 +62,65 @@ class Range(var start: Int, var end: Int, var checkDay: Int) : Serializable, Par
         inner[ee] = Pair(ss, date)
     }
 
-    fun getUncheckedOrLateCount(): Int = inner.filter {
-        it.value.second == null || checkDay - daysBetween(it.value.second!!, Date()) <= 5
-    }.count()
-
-    fun getUncheckedOrLate(): List<Quadruple<Int, Int, Int, Date?>> = inner.filter {
-        it.value.second == null || checkDay - daysBetween(it.value.second!!, Date()) <= 5
-    }.map {
-        Quadruple(it.value.first, it.key, checkDay, it.value.second)
+    override fun getAll(): List<Quintuple<Int, Int, Int, Date?, Boolean?>> = inner.map {
+        val dir: Boolean? = null
+        Quintuple(it.value.first, it.key, checkDay, it.value.second, dir)
     }
 
-    fun remove(s: Int, e: Int) {
-        insert(s, e, null)
+    override fun getUncheckedOrLate(): List<Quintuple<Int, Int, Int, Date?, Boolean?>> =
+        inner.filter {
+            it.value.second?.let { d -> daysBetween(d, Date()) > checkDay - 10 } ?: true
+        }.map {
+            val dir: Boolean? = null
+            Quintuple(it.value.first, it.key, checkDay, it.value.second, dir)
+        }
+
+    override fun getUncheckedOrLateCount(): Int = inner.filter {
+        it.value.second?.let { d -> daysBetween(d, Date()) > checkDay - 10 } ?: true
+    }.count()
+
+    override fun removeRecord(s: Int, e: Int, up: Boolean?) {
+        insertRecord(s, e, null, null)
     }
 
     operator fun compareTo(other: Range): Int = compareValues(this.start, other.start)
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        dest.writeInt(start)
-        dest.writeInt(end)
-        dest.writeInt(checkDay)
-        dest.writeInt(inner.size)
-        for (subRange in inner) {
-            dest.writeInt(subRange.key)
-            dest.writeInt(subRange.value.first)
-            dest.writeString(subRange.value.second?.time.toString())
+}
+
+class DoubleRange(start: Int, end: Int, checkDay: Int) : Range(start, end, checkDay) {
+    var r1 = SingleRange(start, end, checkDay)
+    var r2 = SingleRange(start, end, checkDay)
+
+    override fun insertRecord(s: Int, e: Int, date: Date?, up: Boolean?) {
+        if (up == null) {
+            r1.insertRecord(s, e, date, null)
+            r2.insertRecord(s, e, date, null)
+        } else if (up) {
+            r1.insertRecord(s, e, date, null)
+        } else {
+            r2.insertRecord(s, e, date, null)
         }
     }
 
-    override fun describeContents(): Int = 0
-
-    companion object CREATOR : Parcelable.Creator<Range> {
-        override fun createFromParcel(parcel: Parcel): Range {
-            return Range(parcel)
-        }
-
-        override fun newArray(size: Int): Array<Range?> {
-            return arrayOfNulls(size)
+    override fun removeRecord(s: Int, e: Int, up: Boolean?) {
+        if (up == null) {
+            r1.insertRecord(s, e, null, null)
+            r2.insertRecord(s, e, null, null)
+        } else if (up) {
+            r1.insertRecord(s, e, null, null)
+        } else {
+            r2.insertRecord(s, e, null, null)
         }
     }
+
+    override fun getAll(): List<Quintuple<Int, Int, Int, Date?, Boolean?>> =
+        r1.getAll().map { it.set5(true) } + r2.getAll().map { it.set5(false) }
+
+    override fun getUncheckedOrLate(): List<Quintuple<Int, Int, Int, Date?, Boolean?>> =
+        r1.getUncheckedOrLate().map { it.set5(true) } + r2.getUncheckedOrLate()
+            .map { it.set5(false) }
+
+    override fun getUncheckedOrLateCount(): Int =
+        r1.getUncheckedOrLateCount() + r2.getUncheckedOrLateCount()
+
 }

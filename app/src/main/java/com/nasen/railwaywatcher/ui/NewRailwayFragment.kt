@@ -36,22 +36,19 @@ class NewRailwayFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         myForm = form {
             useRealTimeValidation()
-            input(startPlaceText) {
+            input(nameText, "name") {
                 isNotEmpty()
             }
-            input(endPlaceText) {
-                isNotEmpty()
-            }
-            input(startKmText) {
+            input(startKmText, "startKm") {
                 isNumber().atLeast(0)
             }
-            input(startMText) {
+            input(startMText, "startM") {
                 isNumber().atLeast(0).lessThan(1000)
             }
-            input(endKmText) {
+            input(endKmText, "endKm") {
                 isNumber().atLeast(0)
             }
-            input(endMText) {
+            input(endMText, "endM") {
                 isNumber().atLeast(0).lessThan(1000)
             }
         }
@@ -65,20 +62,18 @@ class NewRailwayFragment : Fragment() {
             return false
         }
         val startPos =
-            result["startKmText"]!!.asInt()!! * 1000 + result["startMText"]!!.asInt()!!
-        val endPos = result["endKmText"]!!.asInt()!! * 1000 + result["endMText"]!!.asInt()!!
+            result["startKm"]!!.asInt()!! * 1000 + result["startM"]!!.asInt()!!
+        val endPos = result["endKm"]!!.asInt()!! * 1000 + result["endM"]!!.asInt()!!
         if (startPos >= endPos) {
             val fragment = ValidationFailDialog(getString(R.string.start_pos_bigger_than_end_pos))
-            fragment.show(childFragmentManager, "validation_fail")
+            fragment.show(childFragmentManager, null)
             return false
         }
-        val startPlace = result["startPlaceText"]!!.asString()
-        val endPlace = result["endPlaceText"]!!.asString()
+        val name = result["name"]!!.asString()
         val action = NewRailwayFragmentDirections.actionNewRailwayFragmentToNewSubRangeFragment(
             startPos,
             endPos,
-            startPlace,
-            endPlace
+            name
         )
         Navigation.findNavController(requireView())
             .navigate(action)

@@ -49,6 +49,10 @@
             android:text="@string/unit_meter" />
     </LinearLayout>
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="12dp" />
+
     <TextView
         android:id="@+id/textView8"
         android:layout_width="match_parent"
@@ -91,6 +95,10 @@
             android:text="@string/unit_meter" />
     </LinearLayout>
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="12dp" />
+
     <TextView
         android:id="@+id/textView21"
         android:layout_width="match_parent"
@@ -120,6 +128,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/dont_set_check_date" />
+
     </LinearLayout>
 
     <TextView
@@ -127,5 +136,43 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/dont_set_check_date_explain" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="12dp" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/stream" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/both"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/both" />
+
+        <RadioButton
+            android:id="@+id/upstream"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/upstream" />
+
+        <RadioButton
+            android:id="@+id/downstream"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/downstream" />
+    </RadioGroup>
 
 </LinearLayout>

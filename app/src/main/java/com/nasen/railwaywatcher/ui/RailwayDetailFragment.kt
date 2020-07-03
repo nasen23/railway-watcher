@@ -53,7 +53,7 @@ class RailwayDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as AppCompatActivity).supportActionBar?.title = "${railway.from} - ${railway.to}"
+        (activity as AppCompatActivity).supportActionBar?.title = railway.name
         viewpager.adapter = RailwayDetailPagerAdapter(args.which, this)
         TabLayoutMediator(tabs, viewpager) { tab: TabLayout.Tab, i: Int ->
             when (i) {
